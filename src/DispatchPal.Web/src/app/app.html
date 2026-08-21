@@ -1,0 +1,29 @@
+<header class="header">
+  <strong>DispatchPal</strong>
+
+  @if (auth.isAuthenticated()) {
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      Create request
+    </a>
+
+    <a routerLink="/requests" routerLinkActive="active">
+      Find request
+    </a>
+
+    <a routerLink="/dispatch-requests" routerLinkActive="active">
+      Dispatch requests
+    </a>
+
+    <a routerLink="/customers" routerLinkActive="active">
+      Customers
+    </a>
+
+    <button type="button" (click)="logout()">
+      Logout
+    </button>
+  </nav>
+  }
+</header>
+
+<router-outlet />

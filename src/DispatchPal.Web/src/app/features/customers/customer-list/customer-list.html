@@ -1,0 +1,77 @@
+<main class="page">
+  <section class="card">
+    <h1>Customers</h1>
+
+    <form class="search" (ngSubmit)="searchCustomers()">
+      <label>
+        Search by name or email
+        <input
+          type="search"
+          name="search"
+          [(ngModel)]="search"
+          placeholder="Enter name or email">
+      </label>
+
+      <button type="submit" [disabled]="isLoading">
+        Search
+      </button>
+    </form>
+
+    @if (isLoading) {
+      <p>Loading customers...</p>
+    }
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+
+    @if (!isLoading && !errorMessage) {
+      @if (customers.length === 0) {
+        <p>No customers found.</p>
+      } @else {
+        <p>
+          Found {{ totalCount }}
+          {{ totalCount === 1 ? 'customer' : 'customers' }}.
+        </p>
+
+        <div class="customer-list">
+          @for (customer of customers; track customer.id) {
+            <article class="customer">
+              <div>
+                <h2>{{ customer.name }}</h2>
+                <p>{{ customer.email }}</p>
+
+                @if (customer.phone) {
+                  <p>{{ customer.phone }}</p>
+                }
+              </div>
+              <a [routerLink]="['/customers', customer.id]">
+                View details
+              </a>
+            </article>
+          }
+        </div>
+
+        <nav class="pagination" aria-label="Customer pages">
+          <button
+            type="button"
+            (click)="previousPage()"
+            [disabled]="page <= 1 || isLoading">
+            Previous
+          </button>
+
+          <span>
+            Page {{ page }} of {{ totalPages }}
+          </span>
+
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="page >= totalPages || isLoading">
+            Next
+          </button>
+        </nav>
+      }
+    }
+  </section>
+</main>

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DispatchPal.Api/DispatchPal.Api.csproj" />
+    <Project Path="src/DispatchPal.Contracts/DispatchPal.Contracts.csproj" />
+    <Project Path="src/DispatchPal.Notification/DispatchPal.Notification.csproj" />
+    <Project Path="src/DispatchPal.Processing/DispatchPal.Processing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DispatchPal.Api.UnitTests/DispatchPal.Api.UnitTests.csproj" />
+    <Project Path="tests/DispatchPal.EndToEndTests/DispatchPal.EndToEndTests.csproj" />
+  </Folder>
+</Solution>

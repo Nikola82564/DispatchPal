@@ -1,0 +1,39 @@
+<main class="page">
+  <section class="card">
+    <h1>Find dispatch request</h1>
+
+    <form [formGroup]="form" (ngSubmit)="search()">
+      <label>
+        Request ID
+        <input type="text" formControlName="requestId">
+      </label>
+
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Loading...' : 'Find request' }}
+      </button>
+    </form>
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+
+    @if (request; as item) {
+      <section class="result">
+        <h2>{{ item.status }}</h2>
+
+        <p><strong>Customer:</strong> {{ item.customerName }}</p>
+        <p><strong>Package:</strong> {{ item.packageDescription }}</p>
+        <p>{{ item.pickupAddress }} → {{ item.deliveryAddress }}</p>
+
+        <h3>Status history</h3>
+
+        @for (history of item.statusHistory; track history.id) {
+          <p>
+            <strong>{{ history.status }}</strong>
+            — {{ history.description }}
+          </p>
+        }
+      </section>
+    }
+  </section>
+</main>

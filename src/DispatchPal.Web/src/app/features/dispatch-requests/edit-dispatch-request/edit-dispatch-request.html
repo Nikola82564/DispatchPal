@@ -1,0 +1,79 @@
+<main class="page">
+  <section class="card">
+    <a routerLink="/dispatch-requests">
+      ← Back to dispatch requests
+    </a>
+
+    <h1>Edit dispatch request</h1>
+
+    @if (isLoading) {
+      <p>Loading dispatch request...</p>
+    }
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+
+    @if (!isLoading && !errorMessage) {
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <label>
+          Pickup address
+          <input
+            type="text"
+            formControlName="pickupAddress">
+        </label>
+
+        @if (
+          form.controls.pickupAddress.touched &&
+          form.controls.pickupAddress.invalid
+        ) {
+          <small>
+            Pickup address is required and must not
+            exceed 500 characters.
+          </small>
+        }
+
+        <label>
+          Delivery address
+          <input
+            type="text"
+            formControlName="deliveryAddress">
+        </label>
+
+        @if (
+          form.controls.deliveryAddress.touched &&
+          form.controls.deliveryAddress.invalid
+        ) {
+          <small>
+            Delivery address is required and must not
+            exceed 500 characters.
+          </small>
+        }
+
+        <label>
+          Package description
+          <textarea
+            rows="4"
+            formControlName="packageDescription">
+          </textarea>
+        </label>
+
+        @if (
+          form.controls.packageDescription.touched &&
+          form.controls.packageDescription.invalid
+        ) {
+          <small>
+            Package description is required and must not
+            exceed 1000 characters.
+          </small>
+        }
+
+        <button
+          type="submit"
+          [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : 'Save changes' }}
+        </button>
+      </form>
+    }
+  </section>
+</main>

@@ -1,0 +1,170 @@
+<main class="page">
+    <section class="card">
+        <h1>Create dispatch request</h1>
+        <p>Enter customer and delivery information.</p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+            <fieldset>
+                <legend>Customer</legend>
+
+                <label>
+                    Name
+                    <input
+                        type="text"
+                        formControlName="customerName"
+                        maxlength="200">
+                </label>
+
+                @if (form.controls.customerName.touched) {
+                    @if (form.controls.customerName.hasError('required')) {
+                        <small>Name is required.</small>
+                    }
+
+                    @if (form.controls.customerName.hasError('maxlength')) {
+                        <small>Name must have at most 200 characters.</small>
+                    }
+                }
+
+                <label>
+                    Email
+                    <input
+                        type="email"
+                        formControlName="customerEmail"
+                        maxlength="320">
+                </label>
+
+                @if (form.controls.customerEmail.touched) {
+                    @if (form.controls.customerEmail.hasError('required')) {
+                        <small>Email is required.</small>
+                    }
+
+                    @if (form.controls.customerEmail.hasError('email')) {
+                        <small>Enter a valid email.</small>
+                    }
+
+                    @if (form.controls.customerEmail.hasError('maxlength')) {
+                        <small>Email must have at most 320 characters.</small>
+                    }
+                }
+
+                <label>
+                    Phone
+                    <input
+                        type="tel"
+                        formControlName="customerPhone"
+                        maxlength="30">
+                </label>
+
+                @if (
+                    form.controls.customerPhone.touched &&
+                    form.controls.customerPhone.hasError('maxlength')
+                ) {
+                    <small>Phone must have at most 30 characters.</small>
+                }
+            </fieldset>
+
+            <fieldset>
+                <legend>Delivery</legend>
+
+                <label>
+                    Pickup address
+                    <input
+                        type="text"
+                        formControlName="pickupAddress"
+                        maxlength="500">
+                </label>
+
+                @if (form.controls.pickupAddress.touched) {
+                    @if (form.controls.pickupAddress.hasError('required')) {
+                        <small>Pickup address is required.</small>
+                    }
+
+                    @if (form.controls.pickupAddress.hasError('maxlength')) {
+                        <small>
+                            Pickup address must have at most 500 characters.
+                        </small>
+                    }
+                }
+
+                <label>
+                    Delivery address
+                    <input
+                        type="text"
+                        formControlName="deliveryAddress"
+                        maxlength="500">
+                </label>
+
+                @if (form.controls.deliveryAddress.touched) {
+                    @if (form.controls.deliveryAddress.hasError('required')) {
+                        <small>Delivery address is required.</small>
+                    }
+
+                    @if (form.controls.deliveryAddress.hasError('maxlength')) {
+                        <small>
+                            Delivery address must have at most 500 characters.
+                        </small>
+                    }
+                }
+
+                <label>
+                    Package description
+                    <textarea
+                        rows="4"
+                        formControlName="packageDescription"
+                        maxlength="1000"></textarea>
+                </label>
+
+                @if (form.controls.packageDescription.touched) {
+                    @if (
+                        form.controls.packageDescription.hasError('required')
+                    ) {
+                        <small>Package description is required.</small>
+                    }
+
+                    @if (
+                        form.controls.packageDescription.hasError('maxlength')
+                    ) {
+                        <small>
+                            Package description must have at most 1000 characters.
+                        </small>
+                    }
+                }
+            </fieldset>
+
+            <button type="submit" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Creating...' : 'Create request' }}
+            </button>
+        </form>
+
+        @if (errorMessage) {
+            <p class="error">{{ errorMessage }}</p>
+        }
+
+        @if (createdRequest; as request) {
+            <section class="result">
+                <h2>Request created</h2>
+
+                <p><strong>ID:</strong> {{ request.id }}</p>
+                <p><strong>Status:</strong> {{ request.status }}</p>
+
+                <p>
+                    {{ request.pickupAddress }}
+                    →
+                    {{ request.deliveryAddress }}
+                </p>
+
+                <h3>Status history</h3>
+
+                @for (
+                    history of request.statusHistory;
+                    track history.id
+                ) {
+                    <div>
+                        <strong>{{ history.status }}</strong>
+                        — {{ history.description }}
+                    </div>
+                }
+            </section>
+        }
+    </section>
+</main>

@@ -1,0 +1,132 @@
+<main class="page">
+  <section class="card">
+    <h1>Dispatch requests</h1>
+
+    <form class="filters" (ngSubmit)="applyFilters()">
+      <label>
+        Search
+        <input
+          type="search"
+          name="search"
+          [(ngModel)]="search"
+          placeholder="Address, package or customer">
+      </label>
+
+      <label>
+        Status
+        <select
+          name="status"
+          [(ngModel)]="status">
+          <option value="">All statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </label>
+
+      <div class="filter-actions">
+        <button
+          type="submit"
+          [disabled]="isLoading">
+          Apply filters
+        </button>
+
+        <button
+          type="button"
+          (click)="clearFilters()"
+          [disabled]="isLoading">
+          Clear filters
+        </button>
+      </div>
+    </form>
+
+    @if (isLoading) {
+      <p>Loading dispatch requests...</p>
+    }
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+
+    @if (!isLoading && !errorMessage) {
+      @if (requests.length === 0) {
+        <p>No dispatch requests found.</p>
+      } @else {
+        <p>
+          Found {{ totalCount }}
+          {{ totalCount === 1 ? 'request' : 'requests' }}.
+        </p>
+
+        <div class="request-list">
+          @for (request of requests; track request.id) {
+            <article class="request">
+              <header>
+                <div>
+                  <h2>{{ request.customerName }}</h2>
+                  <p>{{ request.status }}</p>
+                </div>
+              </header>
+
+              <p>
+                <strong>Pickup:</strong>
+                {{ request.pickupAddress }}
+              </p>
+
+              <p>
+                <strong>Delivery:</strong>
+                {{ request.deliveryAddress }}
+              </p>
+
+              <p>
+                <strong>Package:</strong>
+                {{ request.packageDescription }}
+              </p>
+
+              <p>
+                <strong>Request ID:</strong>
+                {{ request.id }}
+              </p>
+
+              <p>
+                <strong>Created:</strong>
+                {{ request.createdAtUtc }}
+              </p>
+              @if (request.status === 'Pending') {
+                <a
+                  [routerLink]="[
+                    '/dispatch-requests',
+                    request.id,
+                    'edit'
+                  ]">
+                  Edit request
+                </a>
+              }
+            </article>
+          }
+        </div>
+
+        <nav
+          class="pagination"
+          aria-label="Dispatch request pages">
+
+          <button
+            type="button"
+            (click)="previousPage()"
+            [disabled]="page <= 1 || isLoading">
+            Previous
+          </button>
+
+          <span>
+            Page {{ page }} of {{ totalPages }}
+          </span>
+
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="page >= totalPages || isLoading">
+            Next
+          </button>
+        </nav>
+      }
+    }
+  </section>
+</main>

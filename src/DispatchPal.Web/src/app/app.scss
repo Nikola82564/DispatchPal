@@ -1,0 +1,26 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  color: white;
+  background: #111827;
+
+  nav {
+    display: flex;
+    gap: 1rem;
+  }
+
+  a {
+    padding: 0.5rem;
+    color: #d1d5db;
+    text-decoration: none;
+    border-radius: 6px;
+  }
+
+  a:hover,
+  a.active {
+    color: white;
+    background: #374151;
+  }
+}

@@ -1,0 +1,124 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: dispatchpal-postgres
+    environment:
+      POSTGRES_DB: dispatchpal
+      POSTGRES_USER: dispatchpal
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dispatchpal-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dispatchpal -d dispatchpal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4.3.4-management-alpine
+    container_name: dispatchpal-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - dispatchpal-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: src/DispatchPal.Api/Dockerfile
+    container_name: dispatchpal-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__Postgres: >-
+        Host=postgres;Port=5432;Database=dispatchpal;Username=dispatchpal;Password=${POSTGRES_PASSWORD}
+
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+
+      Jwt__Issuer: DispatchPal.Api
+      Jwt__Audience: DispatchPal.Web
+      Jwt__Key: ${JWT_KEY}
+      Jwt__ExpirationMinutes: 60
+      Jwt__UserEmail: ${JWT_USER_EMAIL}
+      Jwt__UserPassword: ${JWT_USER_PASSWORD}
+    ports:
+      - "5247:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "http://localhost:8080/health/ready"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  processing:
+    build:
+      context: .
+      dockerfile: src/DispatchPal.Processing/Dockerfile
+    container_name: dispatchpal-processing
+    environment:
+      DOTNET_ENVIRONMENT: Development
+
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  notification:
+    build:
+      context: .
+      dockerfile: src/DispatchPal.Notification/Dockerfile
+    container_name: dispatchpal-notification
+    environment:
+      DOTNET_ENVIRONMENT: Development
+
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: src/DispatchPal.Web/Dockerfile
+    container_name: dispatchpal-web
+    ports:
+      - "4200:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  dispatchpal-postgres-data:
+  dispatchpal-rabbitmq-data:
