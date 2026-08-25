@@ -1,0 +1,69 @@
+name: DispatchPal CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Build and test .NET
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore "DispatchPal Demo.slnx"
+
+      - name: Build solution
+        run: >
+          dotnet build "DispatchPal Demo.slnx"
+          --configuration Release
+          --no-restore
+
+      - name: Run unit tests
+        run: >
+          dotnet test
+          tests/DispatchPal.Api.UnitTests/DispatchPal.Api.UnitTests.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+
+  frontend:
+    name: Build Angular
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/DispatchPal.Web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/DispatchPal.Web/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build Angular
+        run: npm run build
