@@ -67,3 +67,43 @@ jobs:
 
       - name: Build Angular
         run: npm run build
+
+  docker:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    needs:
+      - backend
+      - frontend
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build API image
+        run: >
+          docker build
+          --file src/DispatchPal.Api/Dockerfile
+          --tag dispatchpal-api:ci
+          .
+
+      - name: Build Processing image
+        run: >
+          docker build
+          --file src/DispatchPal.Processing/Dockerfile
+          --tag dispatchpal-processing:ci
+          .
+
+      - name: Build Notification image
+        run: >
+          docker build
+          --file src/DispatchPal.Notification/Dockerfile
+          --tag dispatchpal-notification:ci
+          .
+
+      - name: Build Web image
+        run: >
+          docker build
+          --file src/DispatchPal.Web/Dockerfile
+          --tag dispatchpal-web:ci
+          .
