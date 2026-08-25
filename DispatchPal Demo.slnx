@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/DispatchPal.Api/DispatchPal.Api.csproj" />
+    <Project Path="src/DispatchPal.AppHost/DispatchPal.AppHost.csproj" />
     <Project Path="src/DispatchPal.Contracts/DispatchPal.Contracts.csproj" />
     <Project Path="src/DispatchPal.Notification/DispatchPal.Notification.csproj" />
     <Project Path="src/DispatchPal.Processing/DispatchPal.Processing.csproj" />
