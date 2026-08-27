@@ -14,8 +14,10 @@ RUN npm run build
 
 FROM nginx:alpine AS runtime
 
+ENV API_UPSTREAM=http://api:8080
+
 COPY src/DispatchPal.Web/nginx.conf \
-     /etc/nginx/conf.d/default.conf
+     /etc/nginx/templates/default.conf.template
 
 COPY --from=build \
      /app/dist/dispatchpal-web/browser \

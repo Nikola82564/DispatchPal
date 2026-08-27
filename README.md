@@ -377,6 +377,72 @@ Local Aspire secrets belong in the .NET user-secrets store.
 Production secrets should be provided through the deployment platform's
 secret-management features.
 
+## Azure deployment
+
+The learning deployment runs in the `rg-dispatchpal-dev` resource group in
+Azure Poland Central.
+
+Public endpoints:
+
+- Web: `https://web.agreeableground-f565eeb7.polandcentral.azurecontainerapps.io`
+- API: `https://api.agreeableground-f565eeb7.polandcentral.azurecontainerapps.io`
+
+Azure resources:
+
+- Azure Container Registry: `dispatchpal96884.azurecr.io`
+- Container Apps environment: `cae-dispatchpal-dev`
+- PostgreSQL Flexible Server: `dispatchpal-pg-46308`
+- Container Apps: `web`, `api`, `processing`, `notification` and `rabbitmq`
+- User-assigned managed identity: `id-dispatchpal-acr-pull`
+
+The API and web applications have public HTTPS ingress. Processing and
+Notification are background applications without ingress. RabbitMQ exposes
+only internal TCP ingress on port 5672, so it can be reached only by
+applications in the same Container Apps environment.
+
+The managed identity has only the `AcrPull` role and is used by the
+application containers to download private images from ACR. Database,
+RabbitMQ and JWT credentials are stored as Container Apps secrets.
+
+The Azure PostgreSQL server uses the smallest Burstable learning SKU used by
+this deployment, `Standard_B1ms`, with 32 GB of storage. The `citext`
+extension must be included in the server's `azure.extensions` allow-list
+before the API can apply its EF Core migration:
+
+```powershell
+az postgres flexible-server parameter set `
+  --resource-group rg-dispatchpal-dev `
+  --server-name dispatchpal-pg-46308 `
+  --name azure.extensions `
+  --value citext
+```
+
+The web image uses the official Nginx image's startup template processing.
+`API_UPSTREAM` defaults to `http://api:8080` for Docker Compose. In Azure it is
+set to `http://api`, which uses Container Apps service discovery. The proxy
+preserves forwarded request information, and the API enables ASP.NET Core
+forwarded-header processing through
+`ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`.
+
+This is a low-cost learning deployment, not a production topology. RabbitMQ
+uses ephemeral container storage, so broker data can be lost when its replica
+is replaced. The PostgreSQL server, ACR storage and continuously running
+container replicas can consume Azure credit even when the application is not
+being actively tested.
+
+To stop all charges after the demo, delete the complete resource group:
+
+```powershell
+az group delete `
+  --name rg-dispatchpal-dev `
+  --yes `
+  --no-wait
+```
+
+This command permanently deletes the cloud database, Container Apps,
+registry and all other resources in the group. It does not delete the local
+repository or GitHub repository.
+
 ## Learning scope and production trade-offs
 
 DispatchPal intentionally uses a single configured demo user. A production
